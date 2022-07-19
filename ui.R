@@ -1,7 +1,7 @@
 #Author: Tauno Metsalu
 #Copyright: 2018 University of Tartu
 
-#source("/srv/shiny-server/global.R")
+source("global.R")
 
 h = 800
 pcaPlot = uiOutput("pca", height = "100%", width = "100%")
@@ -27,20 +27,20 @@ jitterPlotCondition = function(type, negative = FALSE){
 jitterPlotOptions = function(type){
   conditionalPanel(condition = jitterPlotCondition(type),
     h4("Plot options"),
-    radioButtons(str_c(type, "JitterPlotType"), "Plot type:", selected = "dots", 
-      choices = list("Points only" = "dots", 
-                     "Violin plot with points" = "violin dots", "Box plot with points" = "box dots", 
+    radioButtons(str_c(type, "JitterPlotType"), "Plot type:", selected = "dots",
+      choices = list("Points only" = "dots",
+                     "Violin plot with points" = "violin dots", "Box plot with points" = "box dots",
                      "Violin plot only" = "violin", "Box plot only" = "box")),
     conditionalPanel(condition = str_c("input.", type, "JitterPlotType == 'dots' || input.", type, "JitterPlotType == 'violin dots' || input.", type, "JitterPlotType == 'box dots'"),
-      radioButtons(str_c(type, "JitterSeparateOverlapping"), "Separate overlapping points:", 
+      radioButtons(str_c(type, "JitterSeparateOverlapping"), "Separate overlapping points:",
         selected = "no", choices = c("no", "jittering", "transparency")),
       conditionalPanel(condition = str_c("input.", type, "JitterSeparateOverlapping == 'jittering'"),
-        sliderInput(str_c(type, "JitterJitteringWidth"), "Jittering width:", 
+        sliderInput(str_c(type, "JitterJitteringWidth"), "Jittering width:",
           min = 0, max = 0.5, value = 0.25, step = 0.01)
       )
     ),
     conditionalPanel(condition = str_c("input.", type, "JitterSeparateOverlapping == 'transparency'"),
-      sliderInput(str_c(type, "JitterTransparency"), "Transparency:", 
+      sliderInput(str_c(type, "JitterTransparency"), "Transparency:",
                   min = 0, max = 1, value = 0.5, step = 0.05)
     )
   )
@@ -75,7 +75,7 @@ fluidPage(
 				tags$head(HTML("<script type='text/javascript'>//<![CDATA[
   			  $(document).ready(function(){
             $('[data-toggle=\"tooltip\"]').tooltip({container: 'body'});
-          });//]]> 
+          });//]]>
 				  </script>"))
 			),
 			conditionalPanel(condition = "input.tabs1 == 'Data import'",
@@ -84,7 +84,7 @@ fluidPage(
 				radioButtons("uploadDataInput", NULL, uploadInputOptions),
 				conditionalPanel(condition = "input.uploadDataInput == '1'",
 					h5("Choose dataset:"),
-					radioButtons("uploadSampleData", NULL, 
+					radioButtons("uploadSampleData", NULL,
 						list("NKI breast cancer dataset (PAM50 genes)" = "nki.csv",
 							"Wisconsin Diagnostic Breast Cancer" = "wdbc.csv",
 							"Iris flowers" = "iris.csv"
@@ -107,7 +107,7 @@ fluidPage(
 				),
 				conditionalPanel(condition = "input.uploadDataInput == '5'",
 					h5("Choose dataset:"),
-					selectInput("uploadOrganism", "Array organism:", choices = uploadOrganismList, 
+					selectInput("uploadOrganism", "Array organism:", choices = uploadOrganismList,
                       selected = "Homo sapiens", selectize = useSelectize),
 					numericInput("uploadMinAnnoTracks", "Minimum number of annotations:", value = 1, min = 0),
 					#initially empty to allow faster loading:
@@ -120,24 +120,24 @@ fluidPage(
 				  numericInput("uploadMinAnnoLevels", "Minimum number of levels for annotations:", value = 2, min = 1),
 				  numericInput("uploadMaxAnnoLevels", "Maximum number of levels for annotations:", value = 8, min = 1)
 				),
-				
+
 				conditionalPanel(condition = "input.uploadDataInput == '2' || input.uploadDataInput == '3'",
 					checkboxGroupInput("uploadGuessSep", NULL, c("detect delimiter" = TRUE), TRUE),
 					conditionalPanel(condition = "input.uploadGuessSep == ''",
 						radioButtons("uploadFileSep", "Delimiter:", list("Comma" = 1, "Tab" = 2, "Semicolon" = 3)),
 						HTML('<p>Data in <a href = "http://en.wikipedia.org/wiki/Delimiter-separated_values">delimited text files </a> can be separated by comma, tab or semicolon. For example, Excel data can be exported in .csv (comma separated) or .tab (tab separated) format. </p>')
 					),
-					
+
 					checkboxGroupInput("uploadGuessAnno", NULL, c("detect column and row annotations" = TRUE), TRUE),
 					conditionalPanel(condition = "input.uploadGuessAnno == ''",
 						numericInput("uploadNbrColAnnos", "Number of column annotations:", value = -1, min = -1, step = 1),
 						numericInput("uploadNbrRowAnnos", "Number of row annotations:", value = -1, min = -1, step = 1)
 					),
-					
+
 					selectInput("uploadQuotes", "Quotes:", choices = list("single or double" = "\"'", "single" = "'", "double" = "\"", "no quotes" = ""), selectize = useSelectize),
 					textInput("uploadNaString", "Missing values:", "NA")
 				),
-        
+
 				conditionalPanel(condition = "input.uploadDataInput == '5' || input.uploadDataInput == '6'",
 				  h5("Gene subsetting or clustering:"),
 				  radioButtons("uploadRowFiltering", NULL, list("Subset a pathway" = 1, "Subset a custom gene list" = 4, "Cluster genes" = 2, "Choose one cluster" = 3)),
@@ -146,23 +146,23 @@ fluidPage(
 				      options = list(placeholder = 'search for a pathway')),
 				    HTML('<p>You can type some keywords separated by space (e.g. kegg estrogen) and then select a pathway; use backspace to delete.</p>')
 				  ),
-          
+
 				  conditionalPanel(condition = "input.uploadRowFiltering == '4'",
 				    h5("Paste your gene list below:"),
 				    tags$textarea(id = "uploadGeneList", rows = 10, cols = 5, ""),
 				    actionButton('uploadClearGeneListButton', 'Clear data'),
 				    HTML('<p>Genes should be separated by white space (spaces, tabs or newlines).</p>')
 				  ),
-          
+
 				  conditionalPanel(condition = "input.uploadRowFiltering == '2' || input.uploadRowFiltering == '3'",
-  				  numericInput("uploadNbrClusters", "Number of k-means clusters:", 
+  				  numericInput("uploadNbrClusters", "Number of k-means clusters:",
               value = 100, min = 2, max = 600),
   				  conditionalPanel(condition = "input.uploadRowFiltering == '3'",
   				    numericInput("uploadClusterId", "Cluster ID to choose:", value = 1, min = 1, max = 600)
   				  )
 				  )
 				),
-        
+
 				h5("Data matrix reshape:"),
 				checkboxGroupInput("uploadColumnFilteringAnno", NULL, c("filter columns" = TRUE), FALSE),
 				conditionalPanel(condition = "input.uploadColumnFilteringAnno != ''",
@@ -180,12 +180,12 @@ fluidPage(
 				conditionalPanel(condition = str_c("input.procAnno != '", fakeAnno, "'"),
 				  checkboxGroupInput("procAnnoGroups", "Column annotation groups to keep:", choices = fakeAnno, selected = fakeAnno),
 				  checkboxGroupInput("procAnno", "Column annotations to keep:", choices = fakeAnno, selected = fakeAnno),
-				  selectInput("procMethodAgg", "Collapse columns with similar annotations:", 
+				  selectInput("procMethodAgg", "Collapse columns with similar annotations:",
 					  choices = procMethAgg, selectize = useSelectize)
         ),
-				numericInput("procMaxNaPercRows", "Maximum percentage of NAs allowed in rows:", 
+				numericInput("procMaxNaPercRows", "Maximum percentage of NAs allowed in rows:",
                      value = 99.99, min = 0, max = 100),
-				numericInput("procMaxNaPercCols", "Maximum percentage of NAs allowed in columns:", 
+				numericInput("procMaxNaPercCols", "Maximum percentage of NAs allowed in columns:",
                      value = 99.99, min = 0, max = 100),
 				checkboxGroupInput("procRemConstCols", NULL, c("remove constant columns" = TRUE), FALSE),
 				checkboxGroupInput("procCentering", NULL, c("row centering" = TRUE), TRUE),
@@ -198,16 +198,16 @@ fluidPage(
 				checkboxGroupInput("pcaChangeDataOptions", NULL, c("change data options" = TRUE), FALSE),
 				conditionalPanel(condition = "input.pcaChangeDataOptions != ''",
 				  h5("Data options"),
-				  selectInput("pcaPcx", "Principal component on x-axis:", 
+				  selectInput("pcaPcx", "Principal component on x-axis:",
 					  choices = "1", selected = "1", selectize = useSelectize),
-				  selectInput("pcaPcy", "Principal component on y-axis:", 
+				  selectInput("pcaPcy", "Principal component on y-axis:",
 					  choices = "1", selected = "1", selectize = useSelectize),
-				  checkboxGroupInput("pcaSwitchDir", NULL, 
+				  checkboxGroupInput("pcaSwitchDir", NULL,
 					  choices = c("switch direction of x-axis" = 1, "switch direction of y-axis" = 2),
 					  selected = c(FALSE, FALSE)),
 				  br()
 				),
-        
+
 				checkboxGroupInput("pcaChangeDisplayOptions", NULL, c("change display options" = TRUE), FALSE),
 				conditionalPanel(condition = "input.pcaChangeDisplayOptions != ''",
 				  h5("Display options"),
@@ -218,11 +218,11 @@ fluidPage(
 				      selectInput("pcaColor", "Color scheme:", schemeListPCA, "Set1", selectize = useSelectize),
 				      checkboxGroupInput("pcaShowEllipses", NULL, c("show ellipses around groups" = TRUE), TRUE),
 				      conditionalPanel(condition = "input.pcaShowEllipses != ''",
-				        numericInput("pcaEllipseConf", "Confidence level for ellipses:", 
+				        numericInput("pcaEllipseConf", "Confidence level for ellipses:",
                          value = 0.95, min = 0.5, max = 0.9999, step = 0.001),
-				        sliderInput("pcaEllipseLineWidth", "Line width for ellipses:", 
+				        sliderInput("pcaEllipseLineWidth", "Line width for ellipses:",
                         min = 0.1, max = 3, value = 1, step = 0.1),
-				        selectInput("pcaEllipseLineType", "Line type for ellipses:", 
+				        selectInput("pcaEllipseLineType", "Line type for ellipses:",
                         lineTypeList, selectize = useSelectize)
 				      ),
 				      br()
@@ -235,9 +235,9 @@ fluidPage(
 				    )
 				  ),
 				  sliderInput("pcaPlotWidth", "Plot width:", value = 20, min = 5, max = 50, step = 0.1),
-				  numericInput("pcaPlotRatio", "Plot ratio (height / width):", 
+				  numericInput("pcaPlotRatio", "Plot ratio (height / width):",
                        value = 0.8, min = 0.01, max = 100, step = 0.01),
-				  numericInput("pcaMarginRatio", "Margin ratio:", 
+				  numericInput("pcaMarginRatio", "Margin ratio:",
 				               value = 0.05, min = -0.1, max = 2, step = 0.001),
 				  sliderInput("pcaPointSize", "Point size:", min = 1, max = 9, value = 5, step = 0.1),
 				  conditionalPanel(condition = str_c("input.procAnno != '", fakeAnno, "' && input.procAnno != ''"),
@@ -245,12 +245,12 @@ fluidPage(
           ),
 				  br(), br() #double br() needed after dropdown
 				),
-        
+
 				checkboxGroupInput("pcaChangeLabelOptions", NULL, c("change plot labels" = TRUE), FALSE),
 				conditionalPanel(condition = "input.pcaChangeLabelOptions != ''",
 				  h5("Plot labels"),
 				  sliderInput("pcaFontSize", "Font size:", min = 10, max = 30, value = 20, step = 1),
-				  textInput("pcaAxisLabelPrefix", "Prefix for axes' labels:", "PC"), 
+				  textInput("pcaAxisLabelPrefix", "Prefix for axes' labels:", "PC"),
 				  checkboxGroupInput("pcaShowVariance", NULL, c("show variance explained" = TRUE), TRUE),
 				  conditionalPanel(condition = "input.pcaInteractivity == ''",
             checkboxGroupInput("pcaShowSampleIds", NULL, c("show sample IDs" = TRUE), FALSE)
@@ -258,30 +258,30 @@ fluidPage(
 				  checkboxGroupInput("pcaInteractivity", NULL, c("add interactivity" = TRUE), FALSE)
 				)
 			  ),
-        
+
 				jitterPlotOptions("pca")
 			),
-      
+
 			conditionalPanel(condition = "input.tabs1 == 'Heatmap'",
-			  conditionalPanel(condition = jitterPlotCondition("hm", negative = TRUE), 
+			  conditionalPanel(condition = jitterPlotCondition("hm", negative = TRUE),
 				h4("Heatmap options"),
 				checkboxGroupInput("hmChangeDataOptions", NULL, c("change data options" = TRUE), FALSE),
 				conditionalPanel(condition = "input.hmChangeDataOptions != ''",
 				  h5("Data options"),
 				  checkboxGroupInput("hmShowImputed", NULL, c("show imputed values" = TRUE), TRUE),
 				  checkboxGroupInput("hmTransposeHeatmap", NULL, c("transpose heatmap" = TRUE), FALSE),
-          selectInput("hmClustDistRows", "Clustering distance for rows:", 
+          selectInput("hmClustDistRows", "Clustering distance for rows:",
                       clustDists, "correlation", selectize = useSelectize),
 				  conditionalPanel(condition = "input.hmClustDistRows != 'no clustering'",
-					  selectInput("hmClustMethodRows", "Clustering method for rows:", 
+					  selectInput("hmClustMethodRows", "Clustering method for rows:",
                         clustMethods, "average", selectize = useSelectize),
 					  selectInput("hmTreeOrderingRows", "Tree ordering for rows:", treeOrderings, selectize = useSelectize),
 					  numericInput("hmCutreeClustersRows", "Number of clusters in rows:", value = 1, min = 1, max = 5)
 				  ),
-				  selectInput("hmClustDistCols", "Clustering distance for columns:", 
+				  selectInput("hmClustDistCols", "Clustering distance for columns:",
                       clustDists, "correlation", selectize = useSelectize),
 				  conditionalPanel(condition = "input.hmClustDistCols != 'no clustering'",
-				    selectInput("hmClustMethodCols", "Clustering method for columns:", 
+				    selectInput("hmClustMethodCols", "Clustering method for columns:",
                         clustMethods, "average", selectize = useSelectize),
             selectInput("hmTreeOrderingCols", "Tree ordering for columns:", treeOrderings, selectize = useSelectize),
 				    numericInput("hmCutreeClustersCols", "Number of clusters in columns:", value = 1, min = 1, max = 5)
@@ -289,7 +289,7 @@ fluidPage(
 				  conditionalPanel(condition = "input.hmClustDistCols == 'no clustering'", div()), #to force one empty row
           br()
 			  ),
-        
+
 			  checkboxGroupInput("hmChangeDisplayOptions", NULL, c("change display options" = TRUE), FALSE),
 				conditionalPanel(condition = "input.hmChangeDisplayOptions != ''",
 				  h5("Display options"),
@@ -311,14 +311,14 @@ fluidPage(
 				  selectInput("hmCellBorder", "Cell border:", c("no border", "grey60", "grey", "black"), "grey60", selectize = useSelectize),
           br(), br()
 		    ),
-        
+
 				checkboxGroupInput("hmChangeLabelOptions", NULL, c("change plot labels" = TRUE), FALSE),
 				conditionalPanel(condition = "input.hmChangeLabelOptions != ''",
 				  h5("Plot labels"),
 				  sliderInput("hmFontSizeGeneral", "General font size:", value = 10, min = 1, max = 25),
 				  checkboxGroupInput("hmShowNumbers", NULL, c("show numbers" = TRUE), FALSE),
 				  conditionalPanel(condition = "input.hmShowNumbers != ''",
-					  sliderInput("hmFontSizeNumbers", "Font size of numbers:", 
+					  sliderInput("hmFontSizeNumbers", "Font size of numbers:",
                         value = 15 * 0.8, min = 1 * 0.8, max = 25 * 0.8, step = 1),
 					  sliderInput("hmPrecisionNumbers", "Precision of numbers:", value = 2, min = 0, max = 4, step = 1)
 				  ),
@@ -339,7 +339,7 @@ fluidPage(
 				  checkboxGroupInput("hmInteractivity", NULL, c("add interactivity" = TRUE), FALSE)
 			  )
 			  ),
-        
+
 				jitterPlotOptions("hm")
 			),
 
@@ -365,7 +365,7 @@ fluidPage(
 			conditionalPanel(condition = "input.tabs1 == 'News'",
 				h4("News")
 			),
-			
+
 			bsTooltip("uploadDataInput", "Which input to use: example dataset, upload a file, copy-paste from file, import from MEM (collection of public datasets from ArrayExpress), use saved settings or use a custom pre-saved dataset.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("uploadGuessSep", "Whether delimiter (separator between the columns) is detected automatically or provided by the user.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("uploadGuessAnno", "Whether number of column and row annotations is detected automatically or provided by the user. Annotations should be placed as the first rows and columns in the file. See help tab for more information.", tooltipPlace, options = tooltipOptions),
@@ -381,7 +381,7 @@ fluidPage(
 			bsTooltip("uploadRowFiltering", "How to limit the number of rows shown - take one pathway or custom gene list, cluster the genes using k-means and show cluster centers or choose one specific cluster from k-means clustering.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("uploadNbrClusters", "Number of clusters after appying k-means clustering.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("uploadClusterId", "Which cluster to visualize more closely. The previous option should be run first to identify a cluster of interest.", tooltipPlace, options = tooltipOptions),
-			
+
 			bsTooltip("procTransformation", "Whether to apply logarithmic transformation; recommended if data range covers multiple magnitudes. You may consider using ln(x) if smallest value in your data is 1, and ln(x + 1) if smallest value is 0.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("procAnnoGroups", "You can select or deselect column annotations in batch by using groups.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("procAnno", "Which column annotations to keep for further analysis, especially important if collapsing similar annotations.", tooltipPlace, options = tooltipOptions),
@@ -392,7 +392,7 @@ fluidPage(
 			bsTooltip("procCentering", "Whether to subtract mean from each row or use original data. This only applies to the values on heatmap, rows are always centered before calculating principal components.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("procScaling", "Which scaling to use for each row. See pcaMethods R package for more details.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("procMethod", "Which method to use for calculating principal components. Principal components are also used to impute missing values. See pcaMethods R package for more details.", tooltipPlace, options = tooltipOptions),
-			
+
 			bsTooltip("pcaChangeDataOptions", "Choose which principal components to show and whether to change the direction.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("pcaChangeDisplayOptions", "Change the way how results are visualized, except textual labels.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("pcaChangeColorOptions", "Change options related with color grouping.", tooltipPlace, options = tooltipOptions),
@@ -413,7 +413,7 @@ fluidPage(
 			bsTooltip("pcaEllipseConf", "Confidence level used for calculating prediction ellipses. This determines their size - a new observation will fall inside the ellipse with this probability. See FactoMineR R package for more details.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("pcaLegendPosition", "Where legend is placed, relative to the plot.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("pcaInteractivity", "Whether to make the plot interactive by adding tooltips and links to single points on the plot. This will make the plot more informative, but the plot generation time will increase (the response to changes in the input widgets will become slower).", tooltipPlace, options = tooltipOptions),
-			
+
 			bsTooltip("hmChangeDataOptions", "Change data presentation, clustering distance, linkage and tree ordering.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("hmChangeDisplayOptions", "Change the way how results are visualized, except textual labels.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("hmChangeLabelOptions", "Change the textual labels of the plot.", tooltipPlace, options = tooltipOptions),
@@ -443,16 +443,16 @@ fluidPage(
 			bsTooltip("hmShowAnnoTitlesRow", "Whether to show row annotation titles for the tracks left from the heatmap.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("hmShowAnnoTitlesCol", "Whether to show column annotation titles for the tracks above the heatmap.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("hmInteractivity", "Whether to make the plot interactive by adding tooltips and links to row and column names and to single cells on the plot. This will make the plot more informative, but the plot generation time will increase (the response to changes in the input widgets will become slower).", tooltipPlace, options = tooltipOptions),
-      
+
       #repeated for PCA and heatmap
 			bsTooltip("hmJitterPlotType", jitterPlotTypeTooltip, tooltipPlace, options = tooltipOptions),
 			bsTooltip("pcaJitterPlotType", jitterPlotTypeTooltip, tooltipPlace, options = tooltipOptions),
       bsTooltip("hmJitterSeparateOverlapping", jitterSeparateOverlappingTooltip, tooltipPlace, options = tooltipOptions),
 			bsTooltip("pcaJitterSeparateOverlapping", jitterSeparateOverlappingTooltip, tooltipPlace, options = tooltipOptions),
-			
+
 			bsTooltip("exportSaveSettingsButton", "You can save settings to create a link with data and options pre-loaded.", tooltipPlace, options = tooltipOptions),
 			bsTooltip("exportDeleteSettingsButton", "You can delete settings that you have saved before (for data privacy).", tooltipPlace, options = tooltipOptions),
-			
+
 			tags$head(
         #http://upgrade-bootstrap.bootply.com/
 				tags$style(type = "text/css", ".jslider { max-width: 220px; }"),
@@ -477,18 +477,18 @@ fluidPage(
 				tags$style(type = "text/css", ".hmRow:hover, .hmRow:focus, .hmRow:active, .hmCol:hover, .hmCol:focus, .hmCol:active { cursor: pointer; font-weight: bold;}")
 			)
 		),
-	
+
 		mainPanel(
 			tabsetPanel(
-				tabPanel("Introduction", 
+				tabPanel("Introduction",
 					p("This web tool allows users to upload their own data and easily create Principal Component Analysis (PCA) plots and heatmaps. Data can be uploaded as a file or by copy-pasteing it to the text box. Data format is shown under \"Help\" tab."),
-					p("The tool is inspired by discussions in ", 
+					p("The tool is inspired by discussions in ",
 					a("PREDECT", href = "http://predect.eu/", target = "_blank"),
-					" project and borrows some code from ", 
+					" project and borrows some code from ",
 					HTML("<a href='http://boxplot.tyerslab.com/' target='_blank'>BoxPlotR</a>."),
-					"Several ", a("R", href = "http://www.r-project.org/", target = "_blank"), " packages are used internally, including ", 
-					"shiny, ggplot2, pheatmap, gridSVG, RColorBrewer, FactoMineR, pcaMethods, gProfileR, shinyBS, shinyjs and others. It is developed in ", 
-					a("BIIT", href = "http://biit.cs.ut.ee/", target = "_blank"), 
+					"Several ", a("R", href = "http://www.r-project.org/", target = "_blank"), " packages are used internally, including ",
+					"shiny, ggplot2, pheatmap, gridSVG, RColorBrewer, FactoMineR, pcaMethods, gProfileR, shinyBS, shinyjs and others. It is developed in ",
+					a("BIIT", href = "http://biit.cs.ut.ee/", target = "_blank"),
 					"Research Group. The source code of ClustVis is available in ",
 					HTML("<a href='https://github.com/taunometsalu/ClustVis' target='_blank'>GitHub</a>."),
           "Please submit bug reports and feature requests to GitHub issues page or send to biit.support [at] ut.ee."),
@@ -502,7 +502,7 @@ fluidPage(
 				tabPanel("Data import",
 				  p(textOutput("uploadWarnings")),
 					conditionalPanel(condition = "input.uploadDataInput == '5'",
-						p("Number of annotation levels in the original data before filtering:"), 
+						p("Number of annotation levels in the original data before filtering:"),
 						tableOutput("uploadAnnoLevelsTable")
 					),
 					uiOutput("uploadAnnoColInfo"),
@@ -539,7 +539,7 @@ fluidPage(
 					  htmlOutput("captionPCA"),
 					  pcaPlot
 				  ),
-          
+
 				  conditionalPanel(condition = jitterPlotCondition("pca"),
 				    p(textOutput("pcaJitterWarnings")),
 				    actionButton("pcaBackButton", "Back to PCA plot"),
@@ -558,7 +558,7 @@ fluidPage(
 					  htmlOutput("captionHeatmap"),
             hmPlot
 				  ),
-          
+
 				  conditionalPanel(condition = jitterPlotCondition("hm"),
 				    p(textOutput("hmJitterWarnings")),
 				    actionButton("hmBackButton", "Back to heatmap"),
@@ -578,10 +578,10 @@ fluidPage(
 					conditionalPanel(condition = "input.exportDeleteSettingsButton",
 						uiOutput("exportDeleteSettingsText")
 					),
-					downloadButton("exportDownloadInitialData", "Download initial data as CSV-file"), br(), 
-					downloadButton("exportDownloadProcessedData", "Download processed data as CSV-file"), br(), 
-					downloadButton("exportDownloadPCAscores", "Download PCA scores as CSV-file"), br(), 
-					downloadButton("exportDownloadPCAloadings", "Download PCA loadings as CSV-file"), br(), 
+					downloadButton("exportDownloadInitialData", "Download initial data as CSV-file"), br(),
+					downloadButton("exportDownloadProcessedData", "Download processed data as CSV-file"), br(),
+					downloadButton("exportDownloadPCAscores", "Download PCA scores as CSV-file"), br(),
+					downloadButton("exportDownloadPCAloadings", "Download PCA loadings as CSV-file"), br(),
 					downloadButton("exportDownloadPCAvartable", "Download PCA explained variance as CSV-file"),
           footer
 				),
@@ -600,10 +600,10 @@ fluidPage(
 					p("We aimed for a simple input data format. The numeric data matrix is situated in the bottom right corner, dimensions presented in rows and points in columns. Row labels and annotations are left from the matrix, column labels and annotations are above the matrix. Annotation labels are in the first row and column, respectively. Format of the input file is shown on the image below. Annotations are optional, data sets without annotations can be uploaded as well (on the example image, omitting rows 2-4 and/or columns B and C). When taking data from spreadsheet program (e.g. MS Excel), you can copy-paste the data to 'Paste data' box or export the data as delimited text file (ending with .csv or .tab) and then upload this file to ClustVis. Uploading Excel native files directly (.xls or .xlsx) doesn't work."),
 					img(src = "helpTab/uploadTableArrows.png", width = "100%"),
           p(),
-					p("In addition, it is possible to load settings that you have saved earlier (including data, drop-down settings etc.) or import data from",  
-            a("MEM", href = "http://biit.cs.ut.ee/mem/", target = "_blank"), 
+					p("In addition, it is possible to load settings that you have saved earlier (including data, drop-down settings etc.) or import data from",
+            a("MEM", href = "http://biit.cs.ut.ee/mem/", target = "_blank"),
             " which has a collection of public datasets from ",
-            HTML("<a href='http://www.ebi.ac.uk/arrayexpress/' target='_blank'>ArrayExpress</a>."), 
+            HTML("<a href='http://www.ebi.ac.uk/arrayexpress/' target='_blank'>ArrayExpress</a>."),
             " The latter case is described more closely in the next section. It is also possible to use one of the testing datasets to get an overview of the web tool."),
           #URL() instead of HTML() adds unwanted space before dot
 					p("If your dataset is not uploaded correctly (no rows are shown), please check the following:"),

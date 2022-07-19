@@ -1,2 +1,4 @@
 .DS_Store
 .Rhistory
+Rpackage/.Rbuildignore
+Rpackage/.Rproj.user/

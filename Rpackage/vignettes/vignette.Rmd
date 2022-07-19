@@ -43,7 +43,7 @@ saveHeatmap(hm, file = NA)
 
 ```{r, echo = FALSE, fig.show = 'hold', fig.height = 8.8, fig.width = 7}
 # not working for some reason in the end of previous code chunk
-saveHeatmap(hm, file = NA)
+saveHeatmap(hm, file = "heatmap.pdf")
 ```
 
 ## Export example
